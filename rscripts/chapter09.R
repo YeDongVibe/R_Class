@@ -26,7 +26,7 @@ conn <- dbConnect(drv,
 # 실습: 데이터베이스로부터 레코드 검색, 추가, 수정, 삭제하기 
 # 단계 1: 모든 레코드 검색
 query = "SELECT * FROM test_table"
-dbGetQuery(conn, query)
+dbGetQuery(conn, query) # Query결과를 가져옴.(type : )
 
 # 단계 2: 정렬 조회 - 나이 칼럼을 기준으로 내림차순 정렬
 query = "SELECT * FROM test_table order by age desc"
