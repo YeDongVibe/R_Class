@@ -4,7 +4,7 @@
 # 단계 1: 데이터베이스 연결을 위한 패키지 설치 
 install.packages("rJava")
 install.packages("DBI")
-install.packages("RJDBC")
+install.packages("RJDBC") # 자바랑 데이터베이스를 연결하는 타입 때분에 테이터베이스는 타입이 있고 자바는 자바세계관이 있어서 상호간 인터페이스 교환이 필요
 
 # 단계 2: 데이터베이스 연결을 위한 패키지 로딩
 library(DBI)
