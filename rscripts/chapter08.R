@@ -112,7 +112,7 @@ print(tplot)
 range(quakes$depth)
 
 # 단계 2: depth 변수의 리코딩: 6개의 볌주(100 단위)로 코딩 변경
-quakes$depth2[quakes$depth >= 40 & quakes$depth <= 150] <- 1
+quakes$depth2[quakes$depth >= 40 & quakes$depth <= 150] <- 1 # quakes라는 데이터 프레임의 depth 열에서 값이 40 이상이고 150 이하인 행의 depth2 열을 1로 설정하는 것
 quakes$depth2[quakes$depth >= 151 & quakes$depth <= 250] <- 2
 quakes$depth2[quakes$depth >= 251 & quakes$depth <= 350] <- 3
 quakes$depth2[quakes$depth >= 351 & quakes$depth <= 450] <- 4
@@ -135,11 +135,12 @@ xyplot(Ozone + Solar.R ~ Wind | factor(Month),
 
 # 실습: equal.count() 함수를 사용하여 이산형 변수 범주화하기 
 # 단계 1: 1 ~ 150을 대상으로 겹치지 않게 4개 영역으로 범주화
-numgroup <- equal.count(1:150, number = 4, overlap = 0)
+# equal.count(x, number, overlap) : 일정한 개수의 구간을 생성하는 데 사용 / x: 구간을 생성할 범위 / number: 생성할 구간의 개수 / overlap: 구간 간의 중복 여부를 결정하는 매개변수
+numgroup <- equal.count(1:150, number = 4, overlap = 0) # 1~150을 4개의 그룹으로 나누어 겹치는것 없이(중복없이) 나누기
 numgroup
 
 # 단계 2: 지진의깊이를 5개 영역으로 범주화 
-depthgroup <- equal.count(quakes$depth, number = 5, overlap = 0)
+depthgroup <- equal.count(quakes$depth, number = 5, overlap = 0) # quakes를 5개로 나누는데 중복없이
 depthgroup
 
 # 단계 3: 범주화된 변수(depthgroup)를 조건으로 산점도 그리기
@@ -149,7 +150,7 @@ xyplot(lat ~ long | depthgroup, data = quakes,
        pch = "@", col = "red")
 
 
-# 싨브: 수심과 리히터 규모 변수를 동시에 적용하여 산점도 그리기
+# 실습: 수심과 리히터 규모 변수를 동시에 적용하여 산점도 그리기
 # 단계 1: 리히터 규모를 2개 영역으로 구분
 magnitudegroup <- equal.count(quakes$mag, number = 2, overlap =0)
 magnitudegroup
@@ -169,7 +170,7 @@ xyplot(lat ~ long | depthgroup * magnitudegroup, data = quakes,
 
 # 실습: 이산형 변수를 리코딩한 뒤에 factor 형으로 변환하여 산점도 그리기 
 # 단계 1: depth 변수 리코딩
-quakes$depth3[quakes$depth >= 39.5 & quakes$depth <= 80.5] <- 'd1'
+quakes$depth3[quakes$depth >= 39.5 & quakes$depth <= 80.5] <- 'd1' # quakes 데이터 프레임의 depth 열에서 값이 39.5 이상이고 80.5 이하인 행의 depth3 열을 문자열 'd1'로 설정하는 것
 quakes$depth3[quakes$depth >= 79.5 & quakes$depth <= 186.5] <- 'd2'
 quakes$depth3[quakes$depth >= 185.5 & quakes$depth <= 397.5] <- 'd3'
 quakes$depth3[quakes$depth >= 396.5 & quakes$depth <= 562.5] <- 'd4'
@@ -180,11 +181,18 @@ quakes$mag3[quakes$mag >= 3.95 & quakes$mag <= 4.65] <- 'm1'
 quakes$mag3[quakes$mag >= 4.55 & quakes$mag <= 6.65] <- 'm2'
 
 # 단계 3: factor 형으로 변환
+# quakes 데이터 프레임을 변환(transform)하여 새로운 열인 depth3과 mag3을 팩터(factor) 형식으로 변환
+# 팩터(factor)는 범주형 변수를 나타내는 데이터 유형입니다. 팩터로 변환하면 해당 열의 고유한 값들이 범주로 간주
 convert <- transform(quakes,
                      depth3 = factor(depth3),
                      mag3 = factor(mag3))
 
 # 단계 4: 산점도 그래프 그리기 
+# lat ~ long | depth3 * mag3 :  lat 열을 y축으로, long 열을 x축으로 하는 산점도를 생성.  depth3와 mag3 열의 조합에 따라 여러 패널로 구분
+# y ~ x는 종속 변수 y와 독립 변수 x 사이의 관계를 나타내는 모델 또는 함수를 정의
+# | 의 의미
+  # |를 사용하여 그래프에서 조건을 나타내는 경우 : y ~ x | condition은 x와 y 사이의 관계를 나타내는 그래프를 생성하는데, 이 그래프는 condition에 따라 분할되어 생성
+  # |를 사용하여 모델에서 조건을 나타내는 경우 : lm(y ~ x | condition, data = df)은 df 데이터 프레임의 x와 y 열을 기반으로 선형 회귀 모델을 생성하는데, condition 열의 값에 따라 모델을 그룹별로 생성. 즉, condition에 따라 각 그룹별로 다른 회귀 모델이 생성
 xyplot(lat ~ long | depth3 * mag3, data = convert,
        main = "Fiji Earthquakes", 
        ylab = "latitude", xlab = "longitude",
@@ -200,7 +208,7 @@ coplot(lat ~ long | depth, data = quakes)
 coplot(lat ~ long | depth, dat = quakes,
        overlap = 0.1)
 
-# 단계 2: 조건 구간을 5개로 지정하고, 1행 5열으 패널로 조건 그래프 작성
+# 단계 2: 조건 구간을 5개로 지정하고, 1행 5열의 패널로 조건 그래프 작성
 coplot(lat ~ long | depth, data = quakes, 
        number = 5, row = 1)
 
@@ -220,7 +228,7 @@ coplot(lat ~ long | depth, data = quakes,
 
 
 # 실습: 위도, 경도, 길이를 이용하여 3차원 산점도그리기 
-cloud(depth ~ lat * long, data = quakes, 
+cloud(depth ~ lat * long, data = quakes, # ~를 기준으로 좌측은 행, 우측은 열
       zlim = rev(range(quakes$depth)),
       xlab = "경도", ylab = "위도", zlab = "깊이")
 
@@ -229,12 +237,14 @@ cloud(depth ~ lat * long, data = quakes,
 # 실습: ggplot 패키지 설치와 실습 데이터 가져오기 
 install.packages("ggplot2")
 library(ggplot2)
+library("tidyverse")
 data(mpg)
 str(mpg)
 head(mpg)
 summary(mpg)
+glimpse(mpg)
 
-table(mpg$drv)
+table(mpg$drv) # table(mpg$drv)는 mpg 데이터 프레임의 drv 열을 기준으로 각 값의 빈도를 계산하는 것
 
 
 
@@ -242,23 +252,23 @@ table(mpg$drv)
 # 단계 1: 도수분포를 세로 막대 그래프로 표현
 qplot(hwy, data = mpg)
 
-# 단계 2: fill 속성 적용
+# 단계 2: fill 속성 적용 : fill 속성은 그래프에서 특정 요소의 색상을 지정하는데 사용
 qplot(hwy, data = mpg, fill = drv)
 
-# 단계 3: binwidth 속성 적용
+# 단계 3: binwidth 속성 적용 : binwidth는 이 구간의 폭을 지정하는 값으로, 각 구간의 너비를 나타냄.
 qplot(hwy, data = mpg, fill = drv, binwidth = 2)
 
 
 # 실습: facets 속성을 사용하여 drv 변수값으로 행/열 단위로 패널 생성하기 
 # 단계 1: 열 단위 패널 생성
-qplot(hwy, data = mpg, fill = drv, facets = . ~ drv, binwidth = 2)
+qplot(hwy, data = mpg, fill = drv, facets = . ~ drv, binwidth = 2) # facets = . ~ drv : 열로 나누어 나타냄
 
 # 단계 2: 행 단위 패널 생성
-qplot(hwy, data = mpg, fill = drv, facets = drv ~ ., binwidth = 2)
+qplot(hwy, data = mpg, fill = drv, facets = drv ~ ., binwidth = 2) # facets = drv ~ . : 행으로 나누어 나타냄
 
 
 # 실습: qplot() 함수에서 color 속성을 사용하여 두 변수 구분하기 
-# 단계 1:  두 변ㄴ수로 displ과 hwy 변수 사용
+# 단계 1:  두 변수로 displ과 hwy 변수 사용
 qplot(displ, hwy, data = mpg)
 
 # 단계 2: 두 변수로 displ과 hwp 변수 사용하며, drv 변수에 색상 적용
@@ -434,7 +444,7 @@ ggmap(map)
 
 # 실습 : 2019년도 1월 대한민국 인구수를 기준으로 지역별 인구수 표시하기 
 # 단계 1: 데이터 셋 가져오기 
-pop <- read.csv(file.choose(), header = T)
+pop <- read.csv(file.choose(), header = T, fileEncoding = "cp949")
 
 library(stringr)
 

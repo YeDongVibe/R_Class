@@ -6,6 +6,14 @@ install.packages("rJava")
 install.packages("DBI")
 install.packages("RJDBC") # 자바랑 데이터베이스를 연결하는 타입 때분에 테이터베이스는 타입이 있고 자바는 자바세계관이 있어서 상호간 인터페이스 교환이 필요
 
+install.packages("rJava")
+install.packages("stringr")
+install.packages("hash") # ID값을 잡기 위해 필요
+install.packages("tau")
+install.packages("Sejong") # 말뭉치 자료를 위해
+install.packages("RSQLite") 
+install.packages("devtools") #컴파일을 핸들링할때 필요
+
 # 단계 2: 데이터베이스 연결을 위한 패키지 로딩
 library(DBI)
 Sys.setenv(JAVA_HOME = "C:\\Program Files\\Java\\jre1.8.0_251")
@@ -136,8 +144,7 @@ dbDisconnect(conn)
 
 
 # 실습: 형태소 분석을 위한 KoNLP 패키지 설치 
-install.packages("https://cran.rstudio.com/bin/windows/contrib/3.4/KoNLP_0.80.1.zip",
-                 repos = NULL)
+install.packages("KoNLP_0.80.2.tar", repos = NULL)
 
 # 실습: 한글 사전과 텍스트 마이닝 관련 패키지 설치
 install.packages("Sejong")
