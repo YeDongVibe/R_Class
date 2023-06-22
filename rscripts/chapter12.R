@@ -1,3 +1,4 @@
+# 12장. 교차검증과 카이제곱 검증
 # 단계1. 데이터 불러오기
 # 인코딩에 주의하세요.
 data <- read.csv("./data/cleanDescriptive.csv", header = TRUE, fileEncoding = "euc-kr")
@@ -23,6 +24,7 @@ install.packages("ggplot2")
 library(ggplot2)
 
 # 단계 3: 패키지를 이용한 교차 분할표 작성
+# color가 어떠할 떄 cut이 어떻게 되는가? 독립 : color, 종속 : cut
 CrossTable(x = diamonds$color, y = diamonds$cut)
 
 # 실습: 패키지를 이용한 교차 분할표 작성: 부모의 학력수준과 자녀 대학 진학여부
