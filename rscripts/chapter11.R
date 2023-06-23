@@ -29,7 +29,7 @@ barplot(x)
 
 
 # 실습: 구성 비율 계산
-prop.table(x)
+prop.table(x) # 테이블의 빈도수 비율?
 y <- prop.table(x)
 round(y * 100, 2)
 
@@ -66,7 +66,7 @@ hist(survey)
 pie(x1)
 
 
-# 실습: 생활비(cost) 변ㄴ수 대상 요약 통계량 구하기 
+# 실습: 생활비(cost) 변수 대상 요약 통계량 구하기 
 length(data$cost)
 summary(data$cost)
 
@@ -76,7 +76,8 @@ data <- subset(data, data$cost >= 2 & data$cost <= 10)
 x <- data$cost
 mean(x)
 
-
+plot(x)
+barplot(x)
 # 실습: 생활비(cost) 변수를 대상으로 대표값 구하기 
 # 단계 1: 평균과 중위수 구하기 
 mean(x)
@@ -102,6 +103,7 @@ max(x.t)
 x.m <- rbind(x.t)
 class(x.m)
 str(x.m)
+str(x.t)
 which(x.m[1, ] == 18)
 
 # 단계 3: 데이터프레임으로 변경
@@ -116,8 +118,8 @@ names(x.df[19])
 
 
 # 실습: 생활비(cost) 변수를 대상으로 산포도 구하기 
-var(x)
-sd(x)
+var(x) # 분산
+sd(x) # 표준편차
 sqrt(var(data$cost, na.rm = T))
 
 
@@ -169,7 +171,7 @@ curve(dnorm(x, mean(cost), sd(cost)), col = 'red', add = T)
 
 
 # 실습: attach() / detach() 함수로 기술 통계량 구하기 
-attach(data)
+attach(data) # length(data$cost)를 쓰는 거 대신 attach사용 
 length(cost)
 summary(cost)
 mean(cost)
