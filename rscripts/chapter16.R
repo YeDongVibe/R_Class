@@ -2,18 +2,23 @@
 
 # 실습: 유클리디안 거리 계산법
 # 단계 1: matrix 객체 생성
-x <- matrix(1:9, nrow = 3, by = T)
+x <- matrix(1:9, nrow = 3, by = T) # 1~9까지 정수벡터 생성. 3개의 행으로 지정
 x
+# matrix(data, nrow, ncol, byrow, dimnames)
+# data: 행렬을 구성하는 데이터 / nrow: 행렬의 행(row) 개수 / ncol: 행렬의 열(column) 개수 / byrow: 논리값으로, 행렬을 채우는 순서를 지정 / dimnames: 행렬의 행과 열에 대한 이름을 지정할 수 있는 옵션
 
 # 단계 2: 유클리디안 거리 생성
 dist <- dist(x, method = "euclidean")
 dist
+# dist(x, method = "euclidean")
+# x: 거리를 계산할 데이터 / method: 거리 계산 방법을 지정하는 문자열
 
 
 # 실습: 1행과 2행 변량의 유클리디안 거리 구하기 
 s <- sum((x[1, ] - x[2, ]) ^ 2)
 sqrt(s)
-
+# sum(..., na.rm = FALSE)
+# ...: 합계를 계산할 숫자 벡터들 / na.rm: 논리값으로, TRUE로 설정하면 NA(결측값)를 제외하고 합계를 계산(기본갑 : FALSE)
 
 # 실습: 1행과 3행 변량의 유클리디안 거리 구하기 
 s <- sum((x[1, ] - x[3, ]) ^ 2)
@@ -33,6 +38,8 @@ dist <- dist(x, method = "euclidean")
 
 # 단계 4: 유클리디안 거리 matrix를 이용한 군집화 
 hc <- hclust(dist)
+# hclust(d, method = "complete")
+# d: 거리 행렬 또는 유사도 행렬 / method: 군집 형성 방법을 지정하는 문자열. 주로 사용되는 방법은 "complete" (완전연결법). 다른 옵션으로는 "single" (단일연결법), "average" (평균연결법), "ward.D2" (워드 연결법) 등
 
 # 단계 5: 클러스터 시각화 
 plot(hc)
@@ -58,6 +65,8 @@ plot(hc, hang = -1)
 
 # 단계 5: 군집 단위 테두리 생성
 rect.hclust(hc, k = 3, border ="red")
+# rect.hclust(hc, k, border = "red")
+# hc: hclust() 함수로 생성된 계층적 군집 객체 / k: 그릴 군집 경계 상자의 개수 또는 높이(height) / border: 경계 상자의 테두리 색상을 지정
 
 
 
@@ -85,6 +94,8 @@ plot(hc, hang = -1)
 # 단계 2: 군집 수 자르기 
 ghc <- cutree(hc, k = 3)
 ghc
+# cutree(hc, k)
+# hc는 계층 군집화 결과를 나타내는 객체 / k는 추출할 클러스터의 개수
 
 # 단계 3: iris 데이터 셋에 ghc 칼러 ㅁ추가 
 iris$ghc <- ghc
@@ -106,6 +117,8 @@ summary(g3[1:4])
 library(ggplot2)
 data(diamonds)
 t <- sample(1:nrow(diamonds), 1000)
+# sample(x, size, replace = FALSE, prob = NULL) : 벡터나 집합에서 무작위로 샘플을 추출하는 데 사용
+# x: 샘플을 추출할 벡터나 집합 / size: 추출할 샘플의 크기 / replace: 논리값으로, TRUE인 경우 반복 추출을 허용하고 FALSE인 경우 반복 추출을 허용하지 않음 / rob: 선택적인 매개변수로, x의 각 요소가 선택될 확률을 지정하는 벡터
 test <- diamonds[t, ]
 dim(test)
 head(test)
@@ -130,6 +143,8 @@ head(mydia)
 
 # 단계 4: 변수 간의 상관계수 보기 
 cor(mydia[ , -5], method = "pearson")
+# cor(x, y = NULL, use = "everything", method = c("pearson", "kendall", "spearman")) : 두 변수 또는 여러 변수 간의 상관 관계를 계산하는 데 사용
+# x, y: 상관 관계를 계산할 변수 / use: 결측값(missing values)을 처리하는 방법을 지정 / method: 사용할 상관 계수의 유형을 지정하는 문자열 또는 문자 벡터
 plot(mydia[ , -5])
 
 # 단계 5: 상관계수를 색상으로시각화 
@@ -139,6 +154,8 @@ install.packages("corrgram")
 library(corrgram)
 corrgram(mydia[ , -5], upper.panel = panel.conf)
 corrgram(mydia[ , -5], lower.panel = panel.conf)
+# corrgram(x, order = NULL, panel = NULL, text.panel = NULL, upper.panel = NULL, lower.panel = NULL, main = NULL, xlab = NULL, ylab = NULL, cex.labels = 1, cex.main = 1, cex.axis = 1, pch.corr = 16, type = "full", col = NULL, col.axis = NULL, col.labels = NULL)
+
 
 
 # 단계 6: 비계층적 군집 시각화 
@@ -148,6 +165,7 @@ points(result2$centers[ , c("carat", "price")],
 
 
 # 실습: 트랜잭션 객체를 대상으로 연관규칙 생성
+# transactions은 아이템들의 집합을 표현하는 객체로, 일반적으로 장바구니 분석, 연관 규칙 분석, 시퀀스 분석 등과 같은 작업에서 사용
 # 단계 1: 연관분석을 위한 패키지 설치
 install.packages("arules")
 library(arules)
@@ -162,6 +180,8 @@ tran
 inspect(tran)
 
 # 단계 4: 규칙 발견
+# apriori(data, parameter = NULL, appearance = NULL, control = NULL) : 연관 규칙 분석을 수행하는 데 사용
+# data는 transactions 객체 또는 관련된 데이터 구조를 나타내는 객체 / parameter는 알고리즘 매개변수를 설정하는 데 사용되는 객체 / appearance은 생성될 연관 규칙의 조건을 지정하는 객체 / control은 알고리즘 실행을 제어하는 객체
 rule <- apriori(tran, parameter = list(supp = 0.3, conf = 0.1))
 inspect(rule)
 
@@ -266,6 +286,7 @@ library(arulesViz)
 
 # 단계 2: 연관규칙 시각화
 plot(ar3, method = "graph", control = list(type = "items"))
+plot(ar3, method = "graph", control = list(type = "items"), engine = "htmlwidget")
 
 
 # 실습: Groceries 데이터 셋으로 연관분석 하기 
