@@ -14,11 +14,12 @@ name <- 1:10
 # 단계 2: 과목 데이터프레임 생성
 subject <- data.frame(s1, s2, s3, s4, s5, s6)
 str(subject)
+subject
 
 
 
 # 실습: 변수의 주성분 분석
-# 단계 1: 주성분 부석으로 요인 수 알아보기 
+# 단계 1: 주성분 분석으로 요인 수 알아보기 
 pc <- prcomp(subject)
 summary(pc)
 plot(pc)
@@ -120,7 +121,7 @@ nat <- data.frame(subject$s1, subject$s2)
 # 단계 2: 요인별 산술평균 계산
 app_science <- round((app$subject.s5 + app$subject.s6) / ncol(app), 2)
 soc_science <- round((soc$subject.s3 + soc$subject.s4) / ncol(soc), 2)
-nat_science <- round((nat$subject.s1 + nat$subject.s2) / ncol(net), 2)
+nat_science <- round((nat$subject.s1 + nat$subject.s2) / ncol(nat), 2)
 
 # 단계 3: 상관관계 분석
 subject_factor_df <- data.frame(app_science, soc_science, nat_science)
