@@ -631,3 +631,5 @@ model_net2 = neuralnet(Species2 ~ Sepal.Length + Sepal.Width +
 # 단계 7-2: 분류모델 예측치 생성과 평가 
 model_result <- compute(model_net, testing_nor[c(1:4)])
 cor(model_result$net.result, testing_nor$Species2)
+
+
