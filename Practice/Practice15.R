@@ -143,10 +143,11 @@ recipe_2 %>%
   juice() %>%
   summary()
 
+# 일괄처리 정의
 # metrics
-model_metrics <- yardstick::metric_set(f_meas, pr_auc)
+model_metrics <- yardstick::metric_set(f_meas, pr_auc) # 일괄 처리해 f값과 정확도만 볼거야.(모델 메트릭은 절대 바꾸면 안된다)
 
-# k-fold CV
+# k-fold CV (k겹 교차검증)
 data_penguins_3_cv_folds <-
   rsample::vfold_cv(
     v = 5,
@@ -154,11 +155,164 @@ data_penguins_3_cv_folds <-
     strata = species # 종을 기준으로
   )
 
+# 일괄 작업 작성
+ranger_r1_workflow <- # 일의 흐름을 만들어라
+  workflows::workflow() %>% #
+  add_model(ranger_model) %>% # 모델 추가해라
+  add_recipe(recipe_1) # 레시피1의 전처리 형태(레시피)로
+# ---------------------------------------------------------------------------------
+glm_r2_workflow <-
+  workflows::workflow() %>%
+  add_model(glm_model) %>%
+  add_recipe(recipe_2)
+# ---------------------------------------------------------------------------------
+xgboost_r2_workflow <-
+  workflows::workflow() %>%
+  add_model(xgboost_model) %>%
+  add_recipe(recipe_2)
+
+# Gridsearch를 활용한 학습
+tic("Ranger tune grid training duration ")
+ranger_tuned <-
+  tune::tune_grid(
+    object = ranger_r1_workflow,
+    resamples = data_penguins_3_cv_folds,
+    grid = ranger_grid,
+    metrics = model_metrics,
+    control = tune::control_grid(save_pred = TRUE)
+  )
+toc(log = TRUE)
+# ---------------------------------------------------------------------------------
+tic("GLM tune grid training duration ")
+glm_tuned <-
+  tune::tune_grid(
+    object = glm_r2_workflow,
+    resamples = data_penguins_3_cv_folds,
+    grid = glm_grid,
+    metrics = model_metrics,
+    control = tune::control_grid(save_pred = TRUE)
+  )
+toc(log = TRUE)
+# ---------------------------------------------------------------------------------
+tic("XGBoost tune grid training duration ")
+xgboost_tuned <-
+  tune::tune_grid(
+    object = xgboost_r2_workflow,
+    resamples = data_penguins_3_cv_folds,
+    grid = xgboost_grid,
+    metrics = model_metrics,
+    control = tune::control_grid(save_pred = TRUE)
+  )
+toc(log = TRUE)
+
+# 학습 결과 확인
+install.packages("finetune") # 결과 확인용
+library(finetune)
+
+tic("Tune race training duration ")
+ft_xgboost_tuned <-
+  finetune::tune_race_anova(
+    object = xgboost_r2_workflow,
+    resamples = data_penguins_3_cv_folds,
+    grid = xgboost_grid,
+    metrics = model_metrics,
+    control = control_race(verbose_elim = TRUE) # 66
+  )
+toc(log = TRUE)
+
+# 시각화를 통한 확인
+plot_race(ft_xgboost_tuned) + labs(title = "Parameters Race by Fold")
 
 
+# 결과(코드추가해야함)
+bind_cols(
+  tibble(model = c("Ranger", "GLM", "XGBoost")),
+  bind_rows(
+    ranger_tuned %>%
+      collect_metrics() %>% group_by(.metric) %>% summarise(best_va = max(mean, na.rm = TRUE)) %>% arranglm_tuned %>%
+      glm_tuned %>%
+      collect_metrics() %>% group_by(.metric) %>% summarise(best_va = max(mean, na.rm = TRUE)) %>% arranglm_tuned %>% 
+    xgboost_tuned %>%
+      collect_metrics() %>% group_by(.metric) %>% summarise(best_va = max(mean, na.rm = TRUE)) %>% arran_tuned)
+)
 
+# 전체 모델 확인
+glm_tuned %>% collect_metrics() # 20 models and 2 metrics
 
+glm_tuned %>%
+  collect_metrics() %>%
+  group_by(.metric) %>%
+  summarise(best_va = max(mean, na.rm = TRUE)) %>%
+  arrange(.metric)
 
+glm_tuned %>%
+  collect_metrics() %>%
+  group_by(.metric) %>%
+  summarise(best_va = max(mean, na.rm = TRUE)) %>%
+  arrange(.metric)
 
+glm_tuned %>% select_best(metric = "f_meas")
+
+# F1값 확인(값의 밸런스수치?)
+glm_tuned %>%
+  collect_metrics() %>%
+  filter(.metric == "f_meas") %>%
+  select(mean, penalty, mixture) %>%
+  pivot_longer(penalty:mixture,
+               values_to = "value",
+               names_to = "parameter"
+  ) %>%
+  ggplot(aes(value, mean, color = parameter)) +
+  geom_point(show.legend = FALSE) +
+  facet_wrap(~parameter, scales = "free_x") +
+  labs(x = NULL, y = "F1", title = "F1 MetricEvolution")
+
+# 모델 계선
+best_f1 <-
+  select_best(xgboost_tuned, metric = "f_meas")
+final_model_op1 <-
+  finalize_workflow(
+    x = xgboost_r2_workflow,
+    parameters = best_f1 # 파라미터값으로 베스트f1을 넣고 
+  )
+final_model_op1
+
+#  Last Fit Tune Model
+tic("Train final model Tune")
+penguins_last_fit <-
+  last_fit(final_model_op1,
+           penguins_split,
+           metrics = model_metrics
+  )
+toc(log = TRUE)
+
+collect_metrics(penguins_last_fit) %>%
+  arrange(.metric)
+
+penguins_last_fit %>%
+  collect_predictions() %>%
+  conf_mat(truth = species, estimate = .pred_class)
+
+penguins_last_fit %>%
+  pull(.predictions) %>%
+  as.data.frame() %>%
+  filter(.pred_class != species)
+
+# 주요 특징 분석
+#install.packages("vip")
+library(vip)
+final_model_op1 %>%
+  fit(data = penguins_df) %>%
+  pull_workflow_fit() %>%
+  vip(
+    geom = "col",
+    aesthetics = list(fill = "steelblue")
+  ) +
+  labs(title = "Feature Importance")
+
+# 모델별 지표 확인
+tic.log() %>%
+  unlist() %>%
+  tibble()
 
 
