@@ -2,16 +2,18 @@
 
 # 실습: 단순 선형 회귀분석 수행
 # 단계 1: 데이터 가져오기 
-product <- read.csv("./data/product.csv", header = TRUE, fileEncoding = "euc-kr")
+product <- read.csv("./data/product.csv", header = TRUE, fileEncoding = "euc-kr") 
 str(product)
 
-# 단계 2: 독립변수와 종속벼수 생성
-y = product$제품_만족도 
+# 단계 2: 독립변수와 종속변수 생성
+y = product$제품_만족도 #y먼저 적는게 생각을 좁히는데 좋음
 x = product$제품_적절성
 df <- data.frame(x, y)
 
 # 단계 3: 단순 선형회귀 모델 생성
-result.lm <- lm(formula = y ~ x, data = df)
+result.lm <- lm(formula = y ~ x, data = df) # x에 의한 y를 구하는것.
+# lm(formula, data)
+# formula는 종속 변수와 독립 변수 사이의 관계를 지정하는 수식 / data는 데이터 프레임으로, 종속 변수와 독립 변수가 포함된 데이터를 지정
 
 # 단계 4: 회귀분석의 절편과 기울기
 result.lm
@@ -169,11 +171,15 @@ head(weather_df)
 
 # 단계 3: 학습데이터와 검정데이터 생성(7:3 비율)
 idx <- sample(1:nrow(weather_df), nrow(weather_df) * 0.7)
+# sample(x, size, replace = FALSE)
+# x: 샘플링 대상이 되는 벡터, 행렬 또는 데이터 프레임 / size: 추출할 샘플의 크기를 지정하는 정수 값, 벡터일 경우 요소의 개수 / replace: 논리 값(TRUE인 경우 반복 추출 / FALSE인 경우 비복원 추출)
 train <- weather_df[idx, ]
 test <- weather_df[-idx, ]
 
-# 단계 4: 로지스틱 회귀모델 생성
-weather_model <- glm(RainTomorrow ~ ., data = train, family = 'binomial')
+# 단계 4: 로지스틱 회귀모델 생성(편향이 없음)
+weather_model <- glm(RainTomorrow ~ ., data = train, family = 'binomial')# 이진 분류
+# glm(formula, data, family)
+# formula: 종속 변수와 독립 변수 간의 관계를 지정하는 수식 / data: 종속 변수와 독립 변수들이 포함된 데이터 프레임 / family: 사용할 확률 분포(family)를 지정하는 매개변수
 weather_model
 summary(weather_model)
 
