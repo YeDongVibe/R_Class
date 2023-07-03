@@ -4,10 +4,12 @@
 # 단계 1: AirPassengers 데이터 셋 가져오기 
 data(AirPassengers)
 
-# 단계 2: 차분 적용 - 평균 정상화
+# 단계 2: 차분(차이) 적용 - 평균 정상화
 par(mfrow = c(1, 2))
 ts.plot(AirPassengers)
-diff <- diff(AirPassengers)
+diff <- diff(AirPassengers) # 차이 나타내기
+AirPassengers # 원데이터
+diff # 차이 데이터(증감을 알 수 있음-> 기울기(높낮이)를 알수있음)
 plot(diff)
 
 # 단계 3: 로그 적용 - 분산 정상화화
@@ -25,6 +27,7 @@ WWWusage
 
 # 단계 2: 시계열 자료 추세선 시각화 
 X11()
+# ts : timeserial
 ts.plot(WWWusage, type = "l", col = "red")
 
 
@@ -61,17 +64,21 @@ tsdata
 # 단계 3: 추세선 확인 - 각 요인(추세, 순환, 계절, 불규칙)을 시각적으로 확인
 ts.plot(tsdata)
 
+
 # 단계 4: 시계열 분해
-plot(stl(tsdata, "periodic"))
+plot(stl(tsdata, "periodic")) # 잔차가 나오는데, 잔차는 선형회귀식을 깔고 결과값을 도출함.
+# stl : 데이터를 시계열로 분류. -> 예측결과값을 아주 얉게 알수있음.
 
 # 단계 5: 시계열 분해와 변동요인 제거 
 m <- decompose(tsdata)
+# decompose : 실제 숫자값으로 넘겨옴 -> 실제로 우리가 필요한 데이터
 attributes(m)
 
 plot(m)
+# random은 불규칙 요인을 의미
 
 par(mfrow = c(1, 1))
-plot(tsdata - m$seasonal)
+plot(tsdata - m$seasonal)# 원데이터 - 계절성 한 결과
 
 
 # 단계 6: 추세요인과 불규칙요인 제거 
@@ -87,10 +94,13 @@ input <- c(3180, 3000, 3200, 3100, 3300, 3200,
 length(input)
 tsdata <- ts(input, start = c(2015, 2), frequency = 12)
 
-# 단계2: 자기 상관 함수 시각화 
+# 단계2: 자기 상관 함수 시각화 (a-b를 한 값을 시각화)
+# 해당데이터가 본인데이터와 상관계수 있음을 나타냄 -> 데이터가 시간에 의존하는 것 없이 무작위성 띠는지 확인
+# 상관계수가 낮을수록 좋은 데이터
 acf(na.omit(tsdata), main ="자기상관함수", col = "red")
 
 # 단계 3: 부분 자기 상관 함수 시각화 
+# 
 pacf(na.omit(tsdata), main = "부분 자기 상관 함수", col = "red")
 
 
