@@ -100,7 +100,6 @@ tsdata <- ts(input, start = c(2015, 2), frequency = 12)
 acf(na.omit(tsdata), main ="자기상관함수", col = "red")
 
 # 단계 3: 부분 자기 상관 함수 시각화 
-# 
 pacf(na.omit(tsdata), main = "부분 자기 상관 함수", col = "red")
 
 
