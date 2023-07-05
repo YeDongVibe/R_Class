@@ -114,6 +114,7 @@ plot(forecast(auto.arima(ibm$y), h = 365), ylim = c(0,250))
 
 ## 3. 시계열 데이터 분리
 library("widyr")
+library("gghighlight")
 (stock_corr <- stocks %>% 
     widyr::pairwise_cor(company, date, open) %>% 
     filter(item1 > item2) %>% 
@@ -148,6 +149,48 @@ stocks %>%
   gghighlight::gghighlight(name == "IBM", use_direct_label = FALSE) +
   labs(x = "", y = "", color = "",
        title = "IBM is an Outlier Among Tech Stocks")
+
+stocks %>% 
+  filter(company %in% 
+           c(stock_corr[1:5,]$item1, stock_corr[1:5,]$item2)) %>% 
+  ggplot(aes(date, open, color = company)) + 
+  geom_line() +
+  labs(x = "", y = "Open Price", color = "",
+       title = "The 6 Most Correlated Stocks Have Nearly Identical Trends") +
+  theme(legend.position = c(0.2,0.75),
+        legend.background = element_rect(fill = "white",
+                                         color = "white"))
+
+stocks %>% 
+  filter(company %in% c(stock_corr[1,1:2])) %>% 
+  select(date, company, open) %>% 
+  pivot_wider(names_from = company, values_from = open) %>% 
+  ggplot(aes(`Adobe Inc.`, `Amazon.com, Inc.`)) +
+  geom_point(alpha = 0.7, color = "steelblue2") +
+  geom_smooth(method = "lm", se = FALSE, color = "black",
+              linetype = "dashed") +
+  labs(title = "Amazon and Adobe Trend")
+
+tock_corr %>% 
+  filter(str_detect(item1, "Netflix") & str_detect(item2, "Machine"))
+
+stocks %>% 
+  filter(str_detect(company, "Netflix|Machine")) %>% 
+  ggplot(aes(date, open, color = name)) + 
+  geom_line() +
+  labs(x = "", y = "Open Price", color = "",
+       title = "IBM and Netflix Have Very Different Trends") +
+  theme(legend.position = c(0.45,0.8))
+
+stocks %>% 
+  filter(str_detect(company, "Netflix|Machine")) %>% 
+  select(date, name, open) %>% 
+  pivot_wider(names_from = name, values_from = open) %>% 
+  ggplot(aes(`IBM`, `NFLX`)) +
+  geom_point(alpha = 0.7, color = "steelblue2") +
+  geom_smooth(method = "lm", se = FALSE, color = "black",
+              linetype = "dashed") +
+  labs(title = "IBM and Netflix")
 
 ## 4. 종가 예측
 
